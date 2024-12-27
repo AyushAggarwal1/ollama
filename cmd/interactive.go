@@ -320,8 +320,6 @@ func generateInteractive(cmd *cobra.Command, opts runOptions) error {
 					}
 					fmt.Println("Set system message.")
 					sb.Reset()
-
-					sb.Reset()
 					continue
 				default:
 					fmt.Printf("Unknown command '/set %s'. Type /? for help\n", args[1])
@@ -487,6 +485,9 @@ func buildModelfile(opts runOptions) string {
 	}
 
 	for _, msg := range opts.Messages {
+		if strings.Contains(msg.Content, "\"") {
+			msg.Content = `"""` + msg.Content + `"""`
+		}
 		f.Commands = append(f.Commands, parser.Command{Name: "message", Args: fmt.Sprintf("%s: %s", msg.Role, msg.Content)})
 	}
 
@@ -516,7 +517,7 @@ func extractFileNames(input string) []string {
 	// Regex to match file paths starting with optional drive letter, / ./ \ or .\ and include escaped or unescaped spaces (\ or %20)
 	// and followed by more characters and a file extension
 	// This will capture non filename strings, but we'll check for file existence to remove mismatches
-	regexPattern := `(?:[a-zA-Z]:)?(?:\./|/|\\)[\S\\ ]+?\.(?i:jpg|jpeg|png|svg)\b`
+	regexPattern := `(?:[a-zA-Z]:)?(?:\./|/|\\)[\S\\ ]+?\.(?i:jpg|jpeg|png)\b`
 	re := regexp.MustCompile(regexPattern)
 
 	return re.FindAllString(input, -1)

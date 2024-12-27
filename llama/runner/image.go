@@ -1,4 +1,4 @@
-package main
+package runner
 
 import (
 	"errors"
@@ -66,6 +66,10 @@ func (c *ImageContext) Free(modelPath string) {
 func (c *ImageContext) NewEmbed(llamaContext *llama.Context, data []byte, aspectRatioId int) ([][]float32, error) {
 	if c == nil {
 		return nil, nil
+	}
+
+	if len(data) <= 0 {
+		return nil, errors.New("received zero length image")
 	}
 
 	hash := c.hashImage(data)
